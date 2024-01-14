@@ -25,7 +25,7 @@ public class BerryChan extends ListenerAdapter {
     }
 
     public static void main(String[] args) throws LoginException {
-        JDABuilder builder = JDABuilder.createDefault("NzAxNjgwMjcwMjg1MjA5NjIw.Xp1ArQ.I7sAqm7fpbINyD1W5mIbsZns-wY");
+        JDABuilder builder = JDABuilder.createDefault("My token Here");
         builder.addEventListeners(new BerryChan());
         builder.setActivity(Activity.playing("With Paul's Heart"));
         builder.addEventListeners(new Commands.Counting());
