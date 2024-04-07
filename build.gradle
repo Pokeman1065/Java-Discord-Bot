@@ -4,9 +4,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-mainClassName = "Main"
+mainClassName = "LetJerryEat.BerryChan"
 
-group 'LetMeEat'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -16,4 +15,6 @@ repositories {
 
 dependencies {
     implementation 'net.dv8tion:JDA:4.2.0_224'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
 }
