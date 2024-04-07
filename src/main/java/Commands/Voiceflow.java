@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import LetJerryEat.BerryChan;
 import LetJerryEat.TokenManager;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import okhttp3.*;
@@ -19,6 +20,7 @@ public class Voiceflow extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent event){
 
         String[] args = event.getMessage().getContentRaw().split("\\s+");
+        String userId = event.getAuthor().getId();
 
         // Launch VoiceFlow bot
         if (!event.getAuthor().isBot() && args[0].equals(BerryChan.prefix + "v") && args.length == 1) {
@@ -31,7 +33,7 @@ public class Voiceflow extends ListenerAdapter {
 
 
             Request request = new Request.Builder()
-            .url("https://general-runtime.voiceflow.com/state/user/Discord_Bot/interact")
+            .url("https://general-runtime.voiceflow.com/state/user/" + userId + "/interact")
             .post(body)
             .addHeader("accept", "application/json")
             .addHeader("content-type", "application/json")
@@ -45,18 +47,21 @@ public class Voiceflow extends ListenerAdapter {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode jsonResponse = objectMapper.readTree(response.body().string());
 
-                // Access the "content" array and then the first object
-                JsonNode contentNode = jsonResponse.get(0).get("payload").get("slate").get("content").get(0);
-
-                // Access the "children" array
-                JsonNode childrenNode = contentNode.get("children");
-
-                // Iterate over the children array and get the "text" field
-                for (JsonNode child : childrenNode) {
-                    String text = child.get("text").asText();
-                    event.getChannel().sendTyping().queue();
-                    event.getChannel().sendMessage(text).queue();
+                for (JsonNode node : jsonResponse) {
+                    String type = node.get("type").asText();
+                    if (type.equals("text")) {
+                        // Extract message field for text type
+                        String message = node.get("payload").get("message").asText();
+                        EmbedBuilder help = new EmbedBuilder();
+                        help.setTitle(":bulb: Voiceflow Bot Help! :bulb:");
+                        help.appendDescription(message);
+                        help.setColor(0xF8B195);
+                        event.getChannel().sendMessage(help.build()).queue();
+                        help.clear();
+                    }
                 }
+
+                
 
                 
 
@@ -83,7 +88,7 @@ public class Voiceflow extends ListenerAdapter {
             MediaType mediaType = MediaType.parse("application/json");
             RequestBody body = RequestBody.create(mediaType, "{\"action\":{\"type\":\"text\",\"payload\":\"" + userRequest + "\"},\"config\":{\"tts\":false,\"stripSSML\":true,\"stopAll\":true,\"excludeTypes\":[\"block\",\"debug\",\"flow\"]}}");
             Request request = new Request.Builder()
-            .url("https://general-runtime.voiceflow.com/state/user/Discord_Bot/interact?verbose=false")
+            .url("https://general-runtime.voiceflow.com/state/user/" + userId + "/interact?verbose=false")
             .post(body)
             .addHeader("accept", "application/json")
             .addHeader("content-type", "application/json")
@@ -96,9 +101,6 @@ public class Voiceflow extends ListenerAdapter {
                 // Parse the JSON response using Jackson
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode jsonResponse = objectMapper.readTree(response.body().string());
-
-                System.out.println(jsonResponse.toString());;
-
 
                 // Determine the type of response
                 for (JsonNode node : jsonResponse) {
