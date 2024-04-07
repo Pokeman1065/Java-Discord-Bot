@@ -25,7 +25,7 @@ public class BerryChan extends ListenerAdapter {
     }
 
     public static void main(String[] args) throws LoginException {
-        JDABuilder builder = JDABuilder.createDefault("My Token Here");
+        JDABuilder builder = JDABuilder.createDefault(TokenManager.getDiscordAPIToken());
         builder.addEventListeners(new BerryChan());
         builder.setActivity(Activity.playing("With Paul's Heart"));
         builder.addEventListeners(new Commands.Counting());
@@ -34,6 +34,7 @@ public class BerryChan extends ListenerAdapter {
         builder.addEventListeners(new Commands.Caps());
         builder.addEventListeners(new Commands.Copy());
         builder.addEventListeners(new Commands.Event());
+        builder.addEventListeners(new Commands.Voiceflow());
         builder.build();
     }
 
@@ -55,6 +56,7 @@ public class BerryChan extends ListenerAdapter {
             event.getChannel().sendMessage(help.build()).queue();
             help.clear();
         }
+        // Debugging
         System.out.printf("[%s][%s] %s: %s\n", event.getGuild().getName(),
                         event.getTextChannel().getName(), event.getMember().getEffectiveName(),
                         event.getMessage().getContentDisplay());
